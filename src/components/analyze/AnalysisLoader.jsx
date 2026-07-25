@@ -3,11 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FaCheck, FaSpinner } from 'react-icons/fa6'
 
 const steps = [
-  'Checking Syntax',
-  'Running Code',
-  'AI Detecting Errors',
-  'AI Generating Corrected Code',
-  'AI Creating Personalized Suggestions',
+  'Analyzing...',
+  'Detecting Errors...',
+  'Generating Fix...',
+  'Preparing Learning Notes...',
 ]
 
 const stepDuration = 500
@@ -42,19 +41,19 @@ export default function AnalysisLoader({ onComplete }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5 sm:p-8"
+      className="glass-surface rounded-[18px] bg-white/6 p-6 transition-all duration-300 sm:p-8"
     >
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">
             Analysis in progress
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Running your code through AI checks</h2>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Running your code through AI checks</h2>
         </div>
 
-        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300">
           <FaSpinner className="h-3.5 w-3.5 animate-spin text-primary-500" />
-          ~2.5s
+          Multi-step
         </div>
       </div>
 
@@ -69,9 +68,9 @@ export default function AnalysisLoader({ onComplete }) {
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.25, delay: index * 0.06 }}
-              className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-4 py-4 transition-colors duration-300 dark:border-white/10 dark:bg-slate-950/40"
+              className="flex items-center gap-4 rounded-[18px] border border-white/10 bg-white/5 px-4 py-4 transition-colors duration-300"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[18px] border border-white/10 bg-[#050816]/80 text-slate-300 shadow-[0_14px_40px_-18px_rgba(59,130,246,0.35)]">
                 <AnimatePresence mode="wait" initial={false}>
                   {isComplete ? (
                     <motion.span
@@ -110,15 +109,15 @@ export default function AnalysisLoader({ onComplete }) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-semibold ${isActive ? 'text-slate-950 dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
+                <p className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-slate-300'}`}>
                   {step}
                 </p>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: isComplete ? '100%' : isActive ? '72%' : '0%' }}
                     transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="h-full rounded-full bg-linear-to-r from-primary-500 to-accent-500"
+                    className="h-full rounded-full bg-linear-to-r from-primary-400 to-violet-500"
                   />
                 </div>
               </div>

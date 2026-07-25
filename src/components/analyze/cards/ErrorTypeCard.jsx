@@ -5,11 +5,11 @@ export default function ErrorTypeCard({ errorType }) {
     <CardShell
       title="Error Type"
       subtitle="The primary issue detected in the code"
-      badge={<span className="rounded-full bg-primary-500/10 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Detected</span>}
+      badge={<span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">Detected</span>}
     >
-      <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-slate-950/40">
-        <p className="text-2xl font-semibold text-slate-950 dark:text-white">{errorType}</p>
-        <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <div className="rounded-[18px] border border-white/10 bg-white/5 p-4">
+        <p className="text-2xl font-semibold text-white">{errorType}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-300">
           This is the category of error the analyzer believes caused the failure.
         </p>
       </div>

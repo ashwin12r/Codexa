@@ -5,7 +5,7 @@ function splitLines(value = '') {
 }
 
 function getLineClass(isDifferent) {
-  return isDifferent ? 'bg-rose-500/10 text-rose-600 dark:text-rose-300' : 'text-slate-600 dark:text-slate-300'
+  return isDifferent ? 'bg-rose-500/10 text-rose-200' : 'text-slate-300'
 }
 
 export default function DiffViewerCard({ originalCode, correctedCode }) {
@@ -16,8 +16,8 @@ export default function DiffViewerCard({ originalCode, correctedCode }) {
   return (
     <CardShell title="Diff Viewer" subtitle="Original vs corrected code">
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-slate-950/40">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Original</p>
+        <div className="rounded-[18px] border border-white/10 bg-white/5 p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Original</p>
           <div className="space-y-1 font-mono text-sm leading-6">
             {Array.from({ length: maxLines }).map((_, index) => {
               const leftLine = originalLines[index] ?? ''
@@ -34,8 +34,8 @@ export default function DiffViewerCard({ originalCode, correctedCode }) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-slate-950/40">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">Corrected</p>
+        <div className="rounded-[18px] border border-white/10 bg-white/5 p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Corrected</p>
           <div className="space-y-1 font-mono text-sm leading-6">
             {Array.from({ length: maxLines }).map((_, index) => {
               const leftLine = originalLines[index] ?? ''
@@ -43,8 +43,8 @@ export default function DiffViewerCard({ originalCode, correctedCode }) {
               const isDifferent = leftLine !== rightLine
 
               return (
-                <div key={`corrected-${index}`} className={`flex gap-3 rounded-xl px-3 py-1.5 ${isDifferent ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                  <span className="w-8 shrink-0 text-right text-xs text-slate-400">{index + 1}</span>
+                <div key={`corrected-${index}`} className={`flex gap-3 rounded-xl px-3 py-1.5 ${isDifferent ? 'bg-emerald-500/10 text-emerald-200' : 'text-slate-300'}`}>
+                  <span className="w-8 shrink-0 text-right text-xs text-slate-500">{index + 1}</span>
                   <span className="min-w-0 whitespace-pre-wrap break-words">{rightLine || ' '}</span>
                 </div>
               )
