@@ -1,0 +1,131 @@
+import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FaCheck, FaSpinner } from 'react-icons/fa6'
+
+const steps = [
+  'Checking Syntax',
+  'Running Code',
+  'AI Detecting Errors',
+  'AI Generating Corrected Code',
+  'AI Creating Personalized Suggestions',
+]
+
+const stepDuration = 500
+
+export default function AnalysisLoader({ onComplete }) {
+  const [activeStep, setActiveStep] = useState(0)
+
+  useEffect(() => {
+    const timers = []
+
+    steps.forEach((_, index) => {
+      timers.push(
+        window.setTimeout(() => {
+          setActiveStep(index)
+
+          if (index === steps.length - 1) {
+            window.setTimeout(() => {
+              onComplete()
+            }, stepDuration)
+          }
+        }, index * stepDuration),
+      )
+    })
+
+    return () => {
+      timers.forEach((timerId) => window.clearTimeout(timerId))
+    }
+  }, [onComplete])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5 sm:p-8"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">
+            Analysis in progress
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Running your code through AI checks</h2>
+        </div>
+
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          <FaSpinner className="h-3.5 w-3.5 animate-spin text-primary-500" />
+          ~2.5s
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-3">
+        {steps.map((step, index) => {
+          const isActive = activeStep === index
+          const isComplete = activeStep > index
+
+          return (
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.25, delay: index * 0.06 }}
+              className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-4 py-4 transition-colors duration-300 dark:border-white/10 dark:bg-slate-950/40"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                <AnimatePresence mode="wait" initial={false}>
+                  {isComplete ? (
+                    <motion.span
+                      key="complete"
+                      initial={{ scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.6, opacity: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className="text-emerald-500"
+                    >
+                      <FaCheck className="h-4 w-4" />
+                    </motion.span>
+                  ) : isActive ? (
+                    <motion.span
+                      key="active"
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.7, opacity: 0 }}
+                      transition={{ duration: 0.18 }}
+                    >
+                      <FaSpinner className="h-4 w-4 animate-spin text-primary-500" />
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="pending"
+                      initial={{ scale: 0.7, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.7, opacity: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className="text-slate-400"
+                    >
+                      {index + 1}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm font-semibold ${isActive ? 'text-slate-950 dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
+                  {step}
+                </p>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+                  <motion.div
+                    initial={{ width: '0%' }}
+                    animate={{ width: isComplete ? '100%' : isActive ? '72%' : '0%' }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="h-full rounded-full bg-linear-to-r from-primary-500 to-accent-500"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+    </motion.div>
+  )
+}
