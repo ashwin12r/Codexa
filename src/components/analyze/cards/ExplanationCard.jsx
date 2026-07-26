@@ -1,9 +1,9 @@
 import CardShell from './CardShell'
 
-export default function ExplanationCard({ explanation }) {
+export default function ExplanationCard({ explanation, title = 'Explanation', subtitle = 'Beginner-friendly description' }) {
   return (
-    <CardShell title="Explanation" subtitle="Beginner-friendly description" defaultOpen>
-      <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">{explanation}</p>
+    <CardShell title={title} subtitle={subtitle} defaultOpen>
+      <p className="text-sm leading-7 text-slate-300">{explanation}</p>
     </CardShell>
   )
 }

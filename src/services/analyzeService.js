@@ -38,6 +38,19 @@ function normalizeResponse(data) {
   return data?.data ?? data
 }
 
+/**
+ * Analyze source code with either mock data or the backend API.
+ *
+ * @param {Object} params - Analysis request payload.
+ * @param {string} params.language - Selected programming language identifier.
+ * @param {string} params.code - Source code to analyze.
+ * @returns {Promise<Object>} Resolves to an analysis result object containing the detected issue, explanation, and corrected code.
+ *
+ * Behavior:
+ * - Uses mock analysis data when VITE_USE_MOCK is not set to false.
+ * - Waits briefly in mock mode to simulate network latency.
+ * - Sends a POST request to /api/analyze when real API mode is enabled.
+ */
 export async function analyzeCode({ language, code }) {
   if (USE_MOCK) {
     await sleep(2500)

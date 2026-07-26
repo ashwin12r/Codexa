@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FaDatabase, FaRobot, FaShieldHalved, FaCode, FaUserAstronaut, FaUserTie, FaUserGraduate } from 'react-icons/fa6'
+import { FaCode, FaRobot } from 'react-icons/fa6'
 import TechBadge from '../components/TechBadge'
 import { itemVariants, sectionVariants } from '../components/landing/motion'
 
@@ -29,9 +29,9 @@ const teamMembers = [
 function SectionHeading({ eyebrow, title, description }) {
   return (
     <div className="max-w-3xl">
-      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-4xl">{title}</h2>
-      {description ? <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">{description}</p> : null}
+      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-200">{eyebrow}</p>
+      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{title}</h2>
+      {description ? <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-base">{description}</p> : null}
     </div>
   )
 }
@@ -46,14 +46,17 @@ function TeamAvatar({ initials }) {
 
 export default function AboutPage() {
   return (
-    <div className="space-y-6 py-4">
+    <div className="relative space-y-6 py-4">
+      <div className="pointer-events-none absolute -left-8 top-8 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-0 top-48 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
       <motion.section
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.25 }}
-        className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-8"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_-40px_rgba(2,6,23,0.8)] backdrop-blur-2xl sm:p-8"
       >
+        <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-cyan-500/10 blur-3xl" />
         <SectionHeading
           eyebrow="About"
           title="What Codexa does, and why it exists"
@@ -66,8 +69,9 @@ export default function AboutPage() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.22 }}
-        className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-8"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_-40px_rgba(2,6,23,0.8)] backdrop-blur-2xl sm:p-8"
       >
+        <div className="pointer-events-none absolute -left-12 top-12 h-44 w-44 rounded-full bg-violet-500/10 blur-3xl" />
         <SectionHeading
           eyebrow="Architecture"
           title="The analysis pipeline"
@@ -79,15 +83,15 @@ export default function AboutPage() {
             <motion.div
               key={step.title}
               variants={itemVariants}
-              className="relative rounded-2xl border border-slate-200 bg-slate-50/80 p-5 text-center shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/40"
+              className="glass-surface relative flex h-full min-h-[240px] flex-col rounded-[18px] bg-white/6 p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_24px_70px_-34px_rgba(59,130,246,0.28)]"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary-600 to-accent-600 text-white shadow-glow">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[18px] bg-linear-to-br from-primary-500 to-violet-500 text-white shadow-[0_14px_40px_-18px_rgba(59,130,246,0.5)]">
                 {index + 1}
               </div>
-              <h3 className="mt-4 text-base font-semibold text-slate-950 dark:text-white">{step.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.description}</p>
+              <h3 className="mt-4 text-base font-semibold text-white">{step.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{step.description}</p>
               {index < pipelineSteps.length - 1 ? (
-                <div className="absolute -right-5 top-1/2 hidden h-0.5 w-5 bg-linear-to-r from-primary-500/40 to-accent-500/40 lg:block" />
+                <div className="absolute -right-5 top-1/2 hidden h-0.5 w-5 bg-linear-to-r from-cyan-400/40 to-violet-400/40 lg:block" />
               ) : null}
             </motion.div>
           ))}
@@ -99,8 +103,9 @@ export default function AboutPage() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
-        className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-8"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_-40px_rgba(2,6,23,0.8)] backdrop-blur-2xl sm:p-8"
       >
+        <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-sky-500/10 blur-3xl" />
         <SectionHeading
           eyebrow="Deep Learning Models"
           title="How the AI makes the experience smarter"
@@ -108,32 +113,32 @@ export default function AboutPage() {
         />
 
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
-          <motion.article variants={itemVariants} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-slate-950/40">
+          <motion.article variants={itemVariants} className="glass-surface rounded-[18px] bg-white/6 p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-primary-600 to-accent-600 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-linear-to-br from-primary-500 to-violet-500 text-white shadow-[0_14px_40px_-18px_rgba(59,130,246,0.5)]">
                 <FaCode className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-950 dark:text-white">CodeT5</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Error explanation and code correction</p>
+                <h3 className="text-xl font-semibold text-white">CodeT5</h3>
+                <p className="text-sm text-slate-400">Error explanation and code correction</p>
               </div>
             </div>
-            <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-sm leading-7 text-slate-300">
               CodeT5 focuses on understanding the code context, explaining why an error happened, and generating a corrected version that preserves the developer’s intent.
             </p>
           </motion.article>
 
-          <motion.article variants={itemVariants} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-slate-950/40">
+          <motion.article variants={itemVariants} className="glass-surface rounded-[18px] bg-white/6 p-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-accent-600 to-primary-600 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-linear-to-br from-violet-500 to-primary-500 text-white shadow-[0_14px_40px_-18px_rgba(139,92,246,0.5)]">
                 <FaRobot className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-950 dark:text-white">LSTM</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Personalization based on user history</p>
+                <h3 className="text-xl font-semibold text-white">LSTM</h3>
+                <p className="text-sm text-slate-400">Personalization based on user history</p>
               </div>
             </div>
-            <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-sm leading-7 text-slate-300">
               The LSTM model tracks recurring error patterns and recent behavior so the app can recommend topics, tips, and next steps tailored to each learner.
             </p>
           </motion.article>
@@ -145,8 +150,9 @@ export default function AboutPage() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
-        className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-8"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_-40px_rgba(2,6,23,0.8)] backdrop-blur-2xl sm:p-8"
       >
+        <div className="pointer-events-none absolute -left-10 top-10 h-36 w-36 rounded-full bg-cyan-500/10 blur-3xl" />
         <SectionHeading
           eyebrow="Technology Stack"
           title="The tools behind the experience"
@@ -167,8 +173,9 @@ export default function AboutPage() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
-        className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-8"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_-40px_rgba(2,6,23,0.8)] backdrop-blur-2xl sm:p-8"
       >
+        <div className="pointer-events-none absolute right-0 top-0 h-36 w-36 rounded-full bg-violet-500/10 blur-3xl" />
         <SectionHeading
           eyebrow="Team"
           title="People building Codexa"
@@ -180,14 +187,14 @@ export default function AboutPage() {
             <motion.article
               key={member.name}
               variants={itemVariants}
-              className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 text-center dark:border-white/10 dark:bg-slate-950/40"
+              className="glass-surface rounded-[18px] bg-white/6 p-5 text-center"
             >
               <div className="flex justify-center">
                 <TeamAvatar initials={member.avatar} />
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-950 dark:text-white">{member.name}</h3>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{member.role}</p>
-              <p className="mt-3 text-xs uppercase tracking-[0.22em] text-primary-600/70 dark:text-primary-300/70">
+              <h3 className="mt-4 text-lg font-semibold text-white">{member.name}</h3>
+              <p className="mt-1 text-sm text-slate-400">{member.role}</p>
+              <p className="mt-3 text-xs uppercase tracking-[0.22em] text-cyan-200/70">
                 Team Member {index + 1}
               </p>
             </motion.article>

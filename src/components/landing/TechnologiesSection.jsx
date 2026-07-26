@@ -38,13 +38,15 @@ export default function TechnologiesSection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.25 }}
-      className="space-y-8"
+      className="relative space-y-8"
     >
+      <div className="pointer-events-none absolute -right-8 top-10 h-48 w-48 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute left-12 bottom-0 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
       <motion.div variants={itemVariants} className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">
+        <p className="text-sm font-semibold uppercase tracking-[0.26em] text-cyan-200">
           Technologies Used
         </p>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           A simple stack, tuned for reliable guidance.
         </h2>
       </motion.div>
@@ -55,7 +57,7 @@ export default function TechnologiesSection() {
             <motion.div
               key={technology.label}
               variants={itemVariants}
-              className=""
+              className="h-full"
             >
               <TechBadge label={technology.label} description={technology.description} />
             </motion.div>

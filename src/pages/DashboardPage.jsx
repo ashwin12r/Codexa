@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Bar, BarChart, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { FaArrowTrendUp, FaClock, FaCode, FaFire, FaTriangleExclamation } from 'react-icons/fa6'
+import { FaArrowTrendUp, FaCode, FaFire, FaTriangleExclamation } from 'react-icons/fa6'
 import { getDashboardData } from '../services/dashboardService'
+import { useTheme } from '../context/ThemeContext'
 
 const severityStyles = {
   Low: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300',
   Medium: 'bg-amber-500/10 text-amber-600 dark:text-amber-300',
   High: 'bg-rose-500/10 text-rose-600 dark:text-rose-300',
 }
-
-const pieColors = ['#3b82f6', '#8b5cf6', '#f59e0b', '#14b8a6']
 
 const cardVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -19,28 +18,28 @@ const cardVariants = {
 
 function DashboardStatCard({ icon: Icon, title, value, description }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5">
+    <div className="glass-surface rounded-[18px] bg-white/6 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:shadow-[0_24px_70px_-34px_rgba(59,130,246,0.28)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary-600 dark:text-primary-300">{title}</p>
-          <p className="mt-3 text-3xl font-semibold text-slate-950 dark:text-white">{value}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">{title}</p>
+          <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500/15 to-accent-500/15 text-primary-700 dark:text-primary-300">
+        <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-linear-to-br from-primary-500/15 to-violet-500/15 text-cyan-200">
           <Icon className="h-5 w-5" />
         </div>
       </div>
-      <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{description}</p>
+      <p className="mt-4 text-sm leading-6 text-slate-300">{description}</p>
     </div>
   )
 }
 
 function DashboardPanel({ title, subtitle, children, className = '' }) {
   return (
-    <section className={`rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5 sm:p-8 ${className}`}>
+    <section className={`glass-surface relative overflow-hidden rounded-[18px] bg-white/6 p-6 transition-all duration-300 hover:border-white/20 hover:shadow-[0_24px_70px_-34px_rgba(59,130,246,0.24)] sm:p-8 ${className}`}>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">{title}</p>
-          {subtitle ? <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p> : null}
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">{title}</p>
+          {subtitle ? <p className="mt-2 text-sm text-slate-300">{subtitle}</p> : null}
         </div>
       </div>
       <div className="mt-6">{children}</div>
@@ -51,6 +50,8 @@ function DashboardPanel({ title, subtitle, children, className = '' }) {
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const { theme } = useTheme()
 
   useEffect(() => {
     let isMounted = true
@@ -73,6 +74,24 @@ export default function DashboardPage() {
   }, [])
 
   const topErrorColors = useMemo(() => ['#3b82f6', '#8b5cf6', '#f59e0b', '#14b8a6'], [])
+  const recentAnalyses = dashboardData?.recentAnalyses ?? []
+  const chartTextColor = theme === 'dark' ? '#cbd5e1' : '#475569'
+  const chartBorderColor = theme === 'dark' ? 'rgba(148, 163, 184, 0.24)' : 'rgba(148, 163, 184, 0.3)'
+  const chartBackgroundColor = theme === 'dark' ? 'rgba(2, 6, 23, 0.96)' : 'rgba(255, 255, 255, 0.98)'
+
+  const filteredRecentAnalyses = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+
+    if (!query) {
+      return recentAnalyses
+    }
+
+    return recentAnalyses.filter((analysis) => {
+      return [analysis.date, analysis.language, analysis.errorType, analysis.severity].some((value) =>
+        String(value).toLowerCase().includes(query),
+      )
+    })
+  }, [recentAnalyses, searchQuery])
 
   if (isLoading || !dashboardData) {
     return (
@@ -90,17 +109,20 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:p-8"
+        className="relative overflow-hidden rounded-[18px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_80px_-40px_rgba(2,6,23,0.8)] backdrop-blur-2xl sm:p-8"
       >
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-violet-500/10 blur-3xl" />
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">Dashboard</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-950 dark:text-white sm:text-4xl">Your coding progress at a glance</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-cyan-200">Dashboard</p>
+            <h1 className="mt-2 max-w-2xl text-3xl font-semibold tracking-tight text-white text-balance sm:text-4xl">
+              Your coding progress at a glance
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
               Track recent analyses, explore trends, and follow personalized learning recommendations built from your coding history.
             </p>
           </div>
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
+          <div className="rounded-[18px] border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
             {dashboardData.learning.improvementStreak} day improvement streak
           </div>
         </div>
@@ -129,35 +151,63 @@ export default function DashboardPage() {
           className="xl:col-span-1"
         >
           <DashboardPanel title="Recent Analyses" subtitle="Latest issues and their severity">
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
-                <thead className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                  <tr>
-                    <th className="pb-3 pr-4 font-medium">Date</th>
-                    <th className="pb-3 pr-4 font-medium">Language</th>
-                    <th className="pb-3 pr-4 font-medium">Error</th>
-                    <th className="pb-3 pr-4 font-medium">Severity</th>
-                    <th className="pb-3 font-medium">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dashboardData.recentAnalyses.map((analysis) => (
-                    <tr key={`${analysis.date}-${analysis.language}`} className="border-t border-slate-200/70 dark:border-white/10">
-                      <td className="py-3 pr-4 text-slate-600 dark:text-slate-300">{analysis.date}</td>
-                      <td className="py-3 pr-4 text-slate-600 dark:text-slate-300">{analysis.language}</td>
-                      <td className="py-3 pr-4 font-medium text-slate-950 dark:text-white">{analysis.errorType}</td>
-                      <td className="py-3 pr-4">
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${severityStyles[analysis.severity]}`}>{analysis.severity}</span>
-                      </td>
-                      <td className="py-3">
-                        <a href="/analyze" className="text-sm font-semibold text-primary-600 hover:text-primary-500 dark:text-primary-300">
-                          View
-                        </a>
-                      </td>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <label className="block flex-1">
+                  <span className="sr-only">Search previous analyses</span>
+                  <input
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    type="search"
+                    placeholder="Search previous analyses"
+                    aria-label="Search previous analyses"
+                    className="w-full rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/15"
+                  />
+                </label>
+
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+                  Showing {filteredRecentAnalyses.length} of {recentAnalyses.length}
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    <tr>
+                      <th className="pb-3 pr-4 font-medium">Date</th>
+                      <th className="pb-3 pr-4 font-medium">Language</th>
+                      <th className="pb-3 pr-4 font-medium">Error</th>
+                      <th className="pb-3 pr-4 font-medium">Severity</th>
+                      <th className="pb-3 font-medium">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredRecentAnalyses.length ? (
+                      filteredRecentAnalyses.map((analysis) => (
+                        <tr key={`${analysis.date}-${analysis.language}`} className="border-t border-white/10">
+                          <td className="py-3 pr-4 text-slate-300">{analysis.date}</td>
+                          <td className="py-3 pr-4 text-slate-300">{analysis.language}</td>
+                          <td className="py-3 pr-4 font-medium text-white">{analysis.errorType}</td>
+                          <td className="py-3 pr-4">
+                            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${severityStyles[analysis.severity]}`}>{analysis.severity}</span>
+                          </td>
+                          <td className="py-3">
+                            <a href="/analyze" className="text-sm font-semibold text-cyan-200 hover:text-white">
+                              View
+                            </a>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr className="border-t border-white/10">
+                        <td colSpan={5} className="py-6 text-center text-sm text-slate-400">
+                          No analyses match your search.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </DashboardPanel>
         </motion.div>
@@ -173,7 +223,18 @@ export default function DashboardPage() {
                         <Cell key={entry.name} fill={topErrorColors[index % topErrorColors.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip
+                      cursor={{ fill: 'transparent' }}
+                      contentStyle={{
+                        backgroundColor: chartBackgroundColor,
+                        border: `1px solid ${chartBorderColor}`,
+                        borderRadius: '1rem',
+                        color: chartTextColor,
+                        boxShadow: '0 18px 50px -34px rgba(15, 23, 42, 0.45)',
+                      }}
+                      labelStyle={{ color: chartTextColor, fontWeight: 600 }}
+                      itemStyle={{ color: chartTextColor }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -185,9 +246,20 @@ export default function DashboardPage() {
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dashboardData.languageErrors}>
-                    <XAxis dataKey="name" stroke="currentColor" />
-                    <YAxis stroke="currentColor" />
-                    <Tooltip />
+                    <XAxis dataKey="name" stroke={chartTextColor} tick={{ fill: chartTextColor, fontSize: 12 }} />
+                    <YAxis stroke={chartTextColor} tick={{ fill: chartTextColor, fontSize: 12 }} />
+                    <Tooltip
+                      cursor={{ fill: 'transparent' }}
+                      contentStyle={{
+                        backgroundColor: chartBackgroundColor,
+                        border: `1px solid ${chartBorderColor}`,
+                        borderRadius: '1rem',
+                        color: chartTextColor,
+                        boxShadow: '0 18px 50px -34px rgba(15, 23, 42, 0.45)',
+                      }}
+                      labelStyle={{ color: chartTextColor, fontWeight: 600 }}
+                      itemStyle={{ color: chartTextColor }}
+                    />
                     <Bar dataKey="value" radius={[10, 10, 0, 0]} fill="url(#languageBarGradient)" />
                     <defs>
                       <linearGradient id="languageBarGradient" x1="0" y1="0" x2="0" y2="1">
@@ -206,10 +278,21 @@ export default function DashboardPage() {
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={dashboardData.activityOverTime}>
-                    <XAxis dataKey="date" stroke="currentColor" />
-                    <YAxis stroke="currentColor" />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                    <XAxis dataKey="date" stroke={chartTextColor} tick={{ fill: chartTextColor, fontSize: 12 }} />
+                    <YAxis stroke={chartTextColor} tick={{ fill: chartTextColor, fontSize: 12 }} />
+                    <Tooltip
+                      cursor={{ stroke: chartTextColor, strokeOpacity: 0.15 }}
+                      contentStyle={{
+                        backgroundColor: chartBackgroundColor,
+                        border: `1px solid ${chartBorderColor}`,
+                        borderRadius: '1rem',
+                        color: chartTextColor,
+                        boxShadow: '0 18px 50px -34px rgba(15, 23, 42, 0.45)',
+                      }}
+                      labelStyle={{ color: chartTextColor, fontWeight: 600 }}
+                      itemStyle={{ color: chartTextColor }}
+                    />
+                    <Line type="monotone" dataKey="value" stroke="#38bdf8" strokeWidth={3} dot={{ r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -227,31 +310,31 @@ export default function DashboardPage() {
         <DashboardPanel title="Personalized Learning" subtitle="LSTM-driven study recommendations">
           <div className="grid gap-4 md:grid-cols-3">
             {dashboardData.learning.topics.map((topic) => (
-              <div key={topic.title} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-slate-950/40">
-                <h3 className="text-lg font-semibold text-slate-950 dark:text-white">{topic.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{topic.description}</p>
+              <div key={topic.title} className="glass-surface rounded-[18px] bg-white/6 p-5">
+                <h3 className="text-lg font-semibold text-white">{topic.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{topic.description}</p>
               </div>
             ))}
           </div>
         </DashboardPanel>
 
         <div className="space-y-4">
-          <div className="rounded-3xl border border-slate-200 bg-linear-to-br from-primary-500/15 to-accent-500/15 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">Next Skill to Focus</p>
-            <h3 className="mt-3 text-2xl font-semibold text-slate-950 dark:text-white">{dashboardData.learning.nextSkill}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <div className="glass-surface rounded-[18px] bg-linear-to-br from-primary-500/10 to-violet-500/10 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-cyan-200">Next Skill to Focus</p>
+            <h3 className="mt-3 text-2xl font-semibold text-white">{dashboardData.learning.nextSkill}</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-300">
               Your recent patterns suggest this is the fastest path to reducing repeated errors.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">Improvement Streak</p>
+          <div className="glass-surface rounded-[18px] bg-white/6 p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-cyan-200">Improvement Streak</p>
             <div className="mt-4 flex items-end gap-4">
-              <p className="text-5xl font-semibold text-slate-950 dark:text-white">{dashboardData.learning.improvementStreak}</p>
-              <p className="pb-1 text-sm text-slate-500 dark:text-slate-400">days of consistent progress</p>
+              <p className="text-5xl font-semibold text-white">{dashboardData.learning.improvementStreak}</p>
+              <p className="pb-1 text-sm text-slate-400">days of consistent progress</p>
             </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-              <div className="h-full rounded-full bg-linear-to-r from-primary-600 to-accent-600" style={{ width: '78%' }} />
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-linear-to-r from-cyan-400 to-violet-500" style={{ width: '78%' }} />
             </div>
           </div>
         </div>

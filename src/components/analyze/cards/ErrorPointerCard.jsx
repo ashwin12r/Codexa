@@ -19,13 +19,13 @@ export default function ErrorPointerCard({ line, column, faulty_token: faultyTok
   return (
     <CardShell title="Error Pointer" subtitle={`Exact error location at line ${line}, column ${column}`}>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)]">
-        <div className="rounded-2xl border border-slate-200 bg-slate-950 p-4 dark:border-white/10">
-          <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+        <div className="rounded-[18px] border border-white/10 bg-[#050816]/90 p-4">
+          <div className="flex items-center justify-between gap-4 text-xs uppercase tracking-[0.22em] text-slate-400">
             <span>Line {line}</span>
             <span>Column {column}</span>
           </div>
 
-          <div className="relative mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-slate-900 px-4 py-4 font-mono text-sm leading-7 text-slate-200">
+          <div className="relative mt-4 overflow-x-auto rounded-[18px] border border-white/10 bg-white/5 px-4 py-4 font-mono text-sm leading-7 text-slate-200">
             <div className="whitespace-pre">
               {before}
               <span className="rounded bg-rose-500/15 px-0.5 text-rose-300 underline decoration-rose-400 decoration-2 underline-offset-4">
@@ -45,28 +45,28 @@ export default function ErrorPointerCard({ line, column, faulty_token: faultyTok
             </div>
           </div>
 
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-3 text-xs text-slate-400">
             The arrow is positioned from the column value using monospace character spacing.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 dark:bg-emerald-500/10">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">Suggested Fix</p>
-          <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-white/70 p-4 text-sm leading-7 text-slate-700 dark:bg-slate-950/40 dark:text-slate-200">
+        <div className="rounded-[18px] border border-emerald-400/20 bg-emerald-400/10 p-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-200">Suggested Fix</p>
+          <div className="mt-4 rounded-[18px] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-slate-200">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-rose-500/10 px-3 py-1 font-mono text-rose-600 line-through dark:text-rose-300">{faultyToken}</span>
+              <span className="rounded-full bg-rose-500/10 px-3 py-1 font-mono text-rose-200 line-through">{faultyToken}</span>
               <span className="text-slate-400">→</span>
-              <span className="rounded-full bg-emerald-500/10 px-3 py-1 font-mono text-emerald-700 dark:text-emerald-300">{suggestedToken}</span>
+              <span className="rounded-full bg-emerald-500/10 px-3 py-1 font-mono text-emerald-200">{suggestedToken}</span>
             </div>
 
-            <p className="mt-4 text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-slate-300">
               Replace the highlighted token so the variable reference matches a declared value.
             </p>
 
             <button
               type="button"
               onClick={onApplyFix}
-              className="mt-5 inline-flex items-center justify-center rounded-2xl bg-linear-to-r from-emerald-500 to-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:from-emerald-400 hover:to-primary-500"
+              className="mt-5 inline-flex items-center justify-center rounded-[18px] bg-linear-to-r from-emerald-400 to-primary-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_40px_-18px_rgba(16,185,129,0.45)] transition hover:-translate-y-0.5 hover:from-emerald-300 hover:to-primary-400"
             >
               Apply Fix
             </button>

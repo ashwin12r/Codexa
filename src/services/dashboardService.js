@@ -49,6 +49,16 @@ const USE_MOCK = String(import.meta.env.VITE_USE_MOCK ?? 'true').toLowerCase() !
 
 const sleep = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration))
 
+/**
+ * Load dashboard analytics data with either mock fixtures or the backend API.
+ *
+ * @returns {Promise<Object>} Resolves to dashboard stats, recent analyses, charts, and learning recommendations.
+ *
+ * Behavior:
+ * - Uses mock dashboard data when VITE_USE_MOCK is not set to false.
+ * - Waits briefly in mock mode to simulate loading.
+ * - Sends a GET request to /api/dashboard when real API mode is enabled.
+ */
 export async function getDashboardData() {
   if (USE_MOCK) {
     await sleep(1200)

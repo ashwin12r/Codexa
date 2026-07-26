@@ -1,10 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import AnalysisLoader from '../components/analyze/AnalysisLoader'
 import ResultsPanel from '../components/analyze/ResultsPanel'
 import EditorPanel from '../components/analyze/EditorPanel'
 import { analyzeCode, mockAnalysisResult } from '../services/analyzeService'
 import { toast } from '../utils/toast'
+
+const editorPanelLimits = {
+  initial: 640,
+  min: 480,
+  max: 860,
+  step: 24,
+  minResultsWidth: 360,
+}
 
 const initialCodeByLanguage = {
   javascript: "function greet(name) {\n  if (!name) {\n    throw new Error('Name is required')\n  }\n\n  return `Hello, ${name}!`\n}\n",
@@ -44,8 +52,22 @@ export default function AnalyzePage() {
   const [analysisReady, setAnalysisReady] = useState(false)
   const [loaderReady, setLoaderReady] = useState(false)
   const [analysisError, setAnalysisError] = useState('')
+  const [editorWidth, setEditorWidth] = useState(editorPanelLimits.initial)
+  const panelLayoutRef = useRef(null)
+  const resizeStateRef = useRef({ isDragging: false, startX: 0, startWidth: editorPanelLimits.initial })
 
   const characterCount = useMemo(() => code.length, [code])
+
+  const clampEditorWidth = (nextWidth, layoutWidth = panelLayoutRef.current?.getBoundingClientRect().width ?? window.innerWidth) => {
+    const availableMaxWidth = Math.max(editorPanelLimits.min, layoutWidth - editorPanelLimits.minResultsWidth)
+    const maxWidth = Math.min(editorPanelLimits.max, availableMaxWidth)
+
+    return Math.min(maxWidth, Math.max(editorPanelLimits.min, nextWidth))
+  }
+
+  const updateEditorWidth = (nextWidth) => {
+    setEditorWidth(clampEditorWidth(nextWidth))
+  }
 
   const handleLanguageChange = (nextLanguage) => {
     setLanguage(nextLanguage)
@@ -101,6 +123,67 @@ export default function AnalyzePage() {
   }
 
   useEffect(() => {
+    const handleWindowResize = () => {
+      setEditorWidth((currentWidth) => clampEditorWidth(currentWidth))
+    }
+
+    window.addEventListener('resize', handleWindowResize)
+    return () => window.removeEventListener('resize', handleWindowResize)
+  }, [])
+
+  const startEditorResize = (event) => {
+    if (event.button !== 0) {
+      return
+    }
+
+    resizeStateRef.current = {
+      isDragging: true,
+      startX: event.clientX,
+      startWidth: editorWidth,
+    }
+
+    const handlePointerMove = (moveEvent) => {
+      if (!resizeStateRef.current.isDragging) {
+        return
+      }
+
+      const nextWidth = resizeStateRef.current.startWidth + (moveEvent.clientX - resizeStateRef.current.startX)
+      updateEditorWidth(nextWidth)
+    }
+
+    const handlePointerUp = () => {
+      resizeStateRef.current.isDragging = false
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+  }
+
+  const handleEditorResizeKeyDown = (event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      updateEditorWidth(editorWidth - editorPanelLimits.step)
+    }
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      updateEditorWidth(editorWidth + editorPanelLimits.step)
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault()
+      updateEditorWidth(editorPanelLimits.min)
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault()
+      updateEditorWidth(editorPanelLimits.max)
+    }
+  }
+
+  useEffect(() => {
     if (analysisReady && loaderReady && isAnalyzing) {
       setIsAnalyzing(false)
       setShowResults(true)
@@ -108,7 +191,9 @@ export default function AnalyzePage() {
   }, [analysisReady, isAnalyzing, loaderReady])
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+    <div ref={panelLayoutRef} className="relative flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div className="pointer-events-none absolute -left-10 top-10 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-0 top-28 h-56 w-56 rounded-full bg-violet-500/10 blur-3xl" />
       <EditorPanel
         code={code}
         language={language}
@@ -118,46 +203,64 @@ export default function AnalyzePage() {
         onLanguageChange={handleLanguageChange}
         onClear={handleClear}
         onAnalyze={handleAnalyze}
+        panelWidth={editorWidth}
+        errorInsight={showResults ? analysisResult || mockAnalysisResult : null}
       />
 
-      <AnimatePresence mode="wait">
-        {isAnalyzing ? (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.25 }}
-          >
-            <AnalysisLoader onComplete={handleAnalysisComplete} />
-          </motion.div>
-        ) : showResults ? (
-          <motion.div
-            key="results"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.25 }}
-          >
-            <ResultsPanel data={analysisResult || mockAnalysisResult} originalCode={submittedCode} onApplyFix={handleApplyFix} />
-          </motion.div>
-        ) : (
-          <motion.section
-            key="idle"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.25 }}
-            className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5 sm:p-8"
-          >
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">Results</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Ready when you are</h2>
-            <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-6 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-300">
-              {analysisError ? analysisError : 'Run analysis to see the error summary, explanation cards, corrected code, diff view, and personalized suggestions.'}
-            </div>
-          </motion.section>
-        )}
-      </AnimatePresence>
+      <button
+        type="button"
+        aria-label="Resize editor panel"
+        aria-orientation="vertical"
+        onPointerDown={startEditorResize}
+        onKeyDown={handleEditorResizeKeyDown}
+        title="Resize editor panel"
+        className="hidden self-stretch lg:flex lg:w-4 lg:cursor-col-resize lg:items-center lg:justify-center"
+      >
+        <span className="flex h-full w-full items-center justify-center rounded-full bg-slate-200/80 transition-colors duration-200 hover:bg-primary-500/20 dark:bg-white/10 dark:hover:bg-primary-500/25">
+          <span className="h-12 w-1 rounded-full bg-slate-400/70 dark:bg-slate-500/80" />
+        </span>
+      </button>
+
+      <div className="min-w-0 flex-1">
+        <AnimatePresence mode="wait">
+          {isAnalyzing ? (
+            <motion.div
+              key="loader"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <AnalysisLoader onComplete={handleAnalysisComplete} />
+            </motion.div>
+          ) : showResults ? (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.25 }}
+            >
+              <ResultsPanel data={analysisResult || mockAnalysisResult} originalCode={submittedCode} onApplyFix={handleApplyFix} />
+            </motion.div>
+          ) : (
+            <motion.section
+              key="idle"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.25 }}
+              className="glass-surface rounded-[18px] bg-white/6 p-6 transition-all duration-300 sm:p-8"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">Results</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Ready when you are</h2>
+              <div className="mt-6 rounded-[18px] border border-dashed border-white/10 bg-white/5 p-6 text-sm leading-6 text-slate-300">
+                {analysisError ? analysisError : 'Run analysis to see the error summary, explanation cards, corrected code, diff view, and personalized suggestions.'}
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }

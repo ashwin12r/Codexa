@@ -42,9 +42,14 @@ export default function EditorPanel({
   onLanguageChange,
   onClear,
   onAnalyze,
+  panelWidth,
+  errorInsight,
 }) {
   const fileInputRef = useRef(null)
   const resizeStateRef = useRef({ isDragging: false, startY: 0, startHeight: editorHeights.initial })
+  const editorRef = useRef(null)
+  const monacoRef = useRef(null)
+  const decorationsRef = useRef([])
   const [editorHeight, setEditorHeight] = useState(editorHeights.initial)
 
   const monacoLanguage = useMemo(() => {
@@ -100,6 +105,59 @@ export default function EditorPanel({
     return () => window.removeEventListener('keydown', handleShortcut)
   }, [isAnalyzing, onAnalyze])
 
+  useEffect(() => {
+    const editor = editorRef.current
+    const monaco = monacoRef.current
+
+    if (!editor || !monaco) {
+      return
+    }
+
+    if (!errorInsight) {
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, [])
+      return
+    }
+
+    const lineNumber = Math.max(1, errorInsight.line ?? 1)
+    const token = errorInsight.faulty_token || ''
+    const lines = code.replace(/\n$/, '').split('\n')
+    const lineText = lines[lineNumber - 1] ?? errorInsight.code_line_text ?? ''
+    const safeColumn = Math.max(1, errorInsight.column ?? 1)
+    const startIndex = Math.max(0, safeColumn - 1)
+    const tokenIndex = token ? lineText.indexOf(token, startIndex) : -1
+    const startColumn = tokenIndex >= 0 ? tokenIndex + 1 : safeColumn
+    const endColumn = startColumn + Math.max(token.length, 1)
+
+    const newDecorations = [
+      {
+        range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+        options: {
+          isWholeLine: true,
+          className: 'codexa-error-line',
+          linesDecorationsClassName: 'codexa-error-line',
+          glyphMarginClassName: 'codexa-error-glyph',
+        },
+      },
+      {
+        range: new monaco.Range(lineNumber, startColumn, lineNumber, endColumn),
+        options: {
+          inlineClassName: 'codexa-error-token',
+        },
+      },
+    ]
+
+    decorationsRef.current = editor.deltaDecorations(decorationsRef.current, newDecorations)
+
+    return () => {
+      decorationsRef.current = editor.deltaDecorations(decorationsRef.current, [])
+    }
+  }, [code, errorInsight])
+
+  const handleEditorMount = (editor, monaco) => {
+    editorRef.current = editor
+    monacoRef.current = monaco
+  }
+
   const handleFileButtonClick = () => {
     fileInputRef.current?.click()
   }
@@ -132,64 +190,67 @@ export default function EditorPanel({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5 sm:p-8"
+      style={{ '--editor-width': `${panelWidth}px` }}
+      className="glass-surface w-full rounded-[18px] bg-white/6 p-6 transition-all duration-300 sm:p-8 lg:flex-none lg:[width:var(--editor-width)]"
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-cyan-200">
             Code Editor
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">Prepare code for analysis</h2>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Prepare code for analysis</h2>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
-            <FaCode className="h-4 w-4 text-primary-600 dark:text-primary-300" />
-            <span>Language</span>
-            <select
-              value={language}
-              onChange={(event) => onLanguageChange(event.target.value)}
-              className="bg-transparent text-sm outline-none"
+        <div className="flex flex-col gap-3 lg:items-end">
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="inline-flex items-center gap-2 rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.08]">
+              <FaCode className="h-4 w-4 text-cyan-200" />
+              <span>Language</span>
+              <select
+                value={language}
+                onChange={(event) => onLanguageChange(event.target.value)}
+                className="bg-transparent text-sm outline-none"
+              >
+                {languageOptions.map((option) => (
+                  <option key={option.value} value={option.value} className="text-slate-950">
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".py,.java,.cpp,.js"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            <button
+              type="button"
+              onClick={handleFileButtonClick}
+              className="inline-flex items-center gap-2 rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.08]"
             >
-              {languageOptions.map((option) => (
-                <option key={option.value} value={option.value} className="text-slate-900">
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              <FaFileArrowUp className="h-4 w-4" />
+              Upload Code File
+            </button>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".py,.java,.cpp,.js"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-
-          <button
-            type="button"
-            onClick={handleFileButtonClick}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
-          >
-            <FaFileArrowUp className="h-4 w-4" />
-            Upload Code File
-          </button>
-
-          <button
-            type="button"
-            onClick={onClear}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
-          >
-            <FaRotateLeft className="h-4 w-4" />
-            Clear
-          </button>
+            <button
+              type="button"
+              onClick={onClear}
+              className="inline-flex items-center gap-2 rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-white/20 hover:bg-white/[0.08]"
+            >
+              <FaRotateLeft className="h-4 w-4" />
+              Clear
+            </button>
+          </div>
 
           <button
             type="button"
             onClick={onAnalyze}
             disabled={isAnalyzing}
-            className="inline-flex items-center gap-2 rounded-2xl bg-linear-to-r from-primary-600 to-accent-600 px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:from-primary-500 hover:to-accent-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-[18px] bg-linear-to-r from-primary-500 to-violet-500 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_40px_-18px_rgba(59,130,246,0.55)] transition hover:-translate-y-0.5 hover:from-primary-400 hover:to-violet-400 disabled:cursor-not-allowed disabled:opacity-60 lg:min-w-[220px]"
           >
             <FaArrowUpRightFromSquare className="h-4 w-4" />
             {isAnalyzing ? 'Analyzing...' : 'Analyze Code'}
@@ -197,8 +258,9 @@ export default function EditorPanel({
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 shadow-[0_24px_60px_-35px_rgba(37,99,235,0.6)] dark:border-white/10">
+      <div className="mt-6 overflow-hidden rounded-[18px] border border-white/10 bg-[#050816]/90 shadow-[0_24px_70px_-34px_rgba(59,130,246,0.45)]">
         <Editor
+          onMount={handleEditorMount}
           height={`${editorHeight}px`}
           language={monacoLanguage}
           value={code}
@@ -214,6 +276,8 @@ export default function EditorPanel({
             smoothScrolling: true,
             padding: { top: 20, bottom: 20 },
             renderLineHighlight: 'all',
+            glyphMargin: true,
+            lineDecorationsWidth: 18,
           }}
         />
 
@@ -228,7 +292,7 @@ export default function EditorPanel({
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col gap-2 text-sm text-slate-500 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex flex-col gap-2 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
         <p>{characterCount} characters</p>
         <p>Shortcut: Ctrl+Enter on Windows, Cmd+Enter on Mac</p>
       </div>

@@ -10,13 +10,13 @@ export default function ResourcesCard({ resources = [] }) {
             href={resource.url}
             target="_blank"
             rel="noreferrer"
-            className="group rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:border-primary-500/30 hover:bg-white dark:border-white/10 dark:bg-slate-950/40 dark:hover:bg-white/5"
+            className="group rounded-[18px] border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.08]"
           >
-            <h3 className="font-semibold text-slate-950 transition group-hover:text-primary-700 dark:text-white dark:group-hover:text-primary-300">
+            <h3 className="font-semibold text-white transition group-hover:text-cyan-200">
               {resource.title}
             </h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{resource.description}</p>
-            <span className="mt-4 inline-flex rounded-full bg-primary-500/10 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300">
+            <p className="mt-2 text-sm leading-6 text-slate-300">{resource.description}</p>
+            <span className="mt-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-200">
               Open Resource
             </span>
           </a>

@@ -37,18 +37,20 @@ export default function FeaturesSection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.25 }}
-      className="space-y-8"
+      className="relative space-y-8"
     >
+      <div className="pointer-events-none absolute -left-12 top-8 h-44 w-44 rounded-full bg-sky-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-8 top-24 h-52 w-52 rounded-full bg-violet-500/10 blur-3xl" />
       <motion.div variants={itemVariants} className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-300">
+        <p className="text-sm font-semibold uppercase tracking-[0.26em] text-cyan-200">
           Features
         </p>
-        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           Built for learning, not just fixing.
         </h2>
       </motion.div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {features.map((feature) => {
           const Icon = feature.icon
 
@@ -56,13 +58,13 @@ export default function FeaturesSection() {
             <motion.article
               key={feature.title}
               variants={itemVariants}
-              className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-[0_18px_50px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-white/5"
+              className="glass-surface flex h-full min-h-[250px] flex-col rounded-[18px] bg-white/6 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_24px_70px_-34px_rgba(59,130,246,0.28)]"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500/15 to-accent-500/15 text-primary-700 dark:text-primary-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[18px] bg-linear-to-br from-primary-500/15 to-violet-500/15 text-cyan-200">
                 <Icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-950 dark:text-white">{feature.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{feature.description}</p>
+              <h3 className="mt-4 text-lg font-semibold text-white">{feature.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{feature.description}</p>
             </motion.article>
           )
         })}
